@@ -181,3 +181,49 @@ body { margin-bottom: 60px; -webkit-font-smoothing: antialiased; }
 
 /* Botón "Ver detalle" con ancho parejo */
 .btn-equal{ min-width:120px; }
+/* ===== Inscripción (UI) ===== */
+.enroll-wrapper{
+  min-height: 65vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 1.5rem;
+}
+
+.enroll-card{
+  width:100%;
+  max-width: 760px;
+  border-radius: 1rem;
+  background: #0f1620;             /* combina con tu theme oscuro */
+  color:#e5e7eb;
+}
+
+.enroll-icon{ font-size: 2rem; }
+
+.badge-course{
+  background:#6c757d;
+  color:#fff;
+  border-radius:.6rem;
+  padding:.35rem .6rem;
+  font-weight:600;
+  letter-spacing:.2px;
+}
+
+.enroll-dl dt{
+  color:#cbd5e1;
+  font-weight:600;
+  margin-bottom:.35rem;
+}
+.enroll-dl dd{ margin-bottom:.35rem; }
+
+.enroll-card .btn{ border-radius:.65rem; font-weight:600; }
+
+.enroll-card .btn-outline-light{
+  color:#e5e7eb; border-color:rgba(255,255,255,.45);
+}
+.enroll-card .btn-outline-light:hover{
+  background:#1a73e8; border-color:#1a73e8; color:#fff;
+}
+
+/* Ajuste de alertas para que no ocupen de más */
+.alert[role="alert"]{ margin-bottom: .75rem; }
