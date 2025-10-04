@@ -2,22 +2,38 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PortalAcademico.Data;
 
-// 👇 Agregados
+// Servicios propios
+using PortalAcademico.Services; // ICursoService, CursoService
+
+// Redis
 using StackExchange.Redis;
-using PortalAcademico.Services; // RedisConfiguration, ICursoService, CursoService
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------------------------
-// DB
-// -------------------------------------
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// ==============================================
+// DB: SQLite local / Postgres en prod (Host=)
+// ==============================================
+var cs = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// -------------------------------------
-// Identity + UI
-// -------------------------------------
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    if (!string.IsNullOrWhiteSpace(cs) &&
+        cs.Contains("Host=", StringComparison.OrdinalIgnoreCase))
+    {
+        // Requiere paquete Npgsql.EntityFrameworkCore.PostgreSQL (8.x)
+        options.UseNpgsql(cs);
+        Console.WriteLine("💽 DB: PostgreSQL (por cadena con Host=).");
+    }
+    else
+    {
+        options.UseSqlite(cs);
+        Console.WriteLine("💽 DB: SQLite.");
+    }
+});
+
+// ==============================================
+// Identity + Roles + Cookie (AccessDenied)
+// ==============================================
 builder.Services
     .AddDefaultIdentity<IdentityUser>(opts =>
     {
@@ -26,53 +42,81 @@ builder.Services
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.LoginPath        = "/Identity/Account/Login";
+    o.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); // Para páginas de Identity
+builder.Services.AddRazorPages(); // UI de Identity
 
-// -------------------------------------
-// 🔴 REDIS: Config + Cache + Sesión con PING + fallback real
-// -------------------------------------
-builder.Services.Configure<RedisConfiguration>(
-    builder.Configuration.GetSection("Redis"));
-
+// ==============================================
+// REDIS (prioriza Redis__ConnectionString) + fallback a memoria
+// ==============================================
 try
 {
-    // Leemos la config y probamos conexión AHORA (no diferida)
-    var cfg = builder.Configuration.GetSection("Redis").Get<RedisConfiguration>()!;
-    var options = new ConfigurationOptions
+    // 1) Rúbrica: una sola cadena (funciona p.ej. con Upstash)
+    var redisConnStr = builder.Configuration["Redis:ConnectionString"]
+                       ?? builder.Configuration["Redis__ConnectionString"];
+
+    ConfigurationOptions options;
+
+    if (!string.IsNullOrWhiteSpace(redisConnStr))
     {
-        EndPoints = { { string.IsNullOrWhiteSpace(cfg.Host) ? "127.0.0.1" : cfg.Host, cfg.Port } },
-        User = string.IsNullOrWhiteSpace(cfg.User) ? null : cfg.User,
-        Password = string.IsNullOrWhiteSpace(cfg.Password) ? null : cfg.Password,
-        AbortOnConnectFail = true,  // si no conecta, que falle aquí y caemos a memoria
-        ConnectTimeout = 3000,
-        SyncTimeout = 3000,
-        ConnectRetry = 1
-    };
+        options = ConfigurationOptions.Parse(redisConnStr);
+        options.AbortOnConnectFail = false;
+        options.ConnectTimeout = 5000;
+        options.SyncTimeout = 5000;
 
-    // Conectar y PING inmediato (si no hay Redis, lanzará excepción)
-    var mux = await ConnectionMultiplexer.ConnectAsync(options);
-    var db  = mux.GetDatabase();
-    var ping = db.Ping(); // test rápido
+        Console.WriteLine("🔗 Redis: usando Redis__ConnectionString.");
+    }
+    else
+    {
+        // 2) Estilo profe: Host/Port/User/Password (soporta Redis: y Redis__)
+        var host = builder.Configuration["Redis:Host"] ?? builder.Configuration["Redis__Host"] ?? "127.0.0.1";
+        var port = builder.Configuration.GetValue<int?>("Redis:Port")
+                   ?? builder.Configuration.GetValue<int?>("Redis__Port")
+                   ?? 6379;
+        var user = builder.Configuration["Redis:User"] ?? builder.Configuration["Redis__User"];
+        var pass = builder.Configuration["Redis:Password"] ?? builder.Configuration["Redis__Password"];
 
-    // Si llegamos aquí, Redis funciona: registramos servicios
+        options = new ConfigurationOptions
+        {
+            AbortOnConnectFail = false,     // en cloud conviene no abortar
+            ConnectTimeout = 5000,
+            SyncTimeout = 5000
+        };
+        options.EndPoints.Add(host, port.Value);
+        if (!string.IsNullOrWhiteSpace(user)) options.User = user;
+        if (!string.IsNullOrWhiteSpace(pass)) options.Password = pass;
+
+        Console.WriteLine($"🔗 Redis: {host}:{port}");
+    }
+
+    // Conexión + ping
+    var mux  = await ConnectionMultiplexer.ConnectAsync(options);
+    var ping = await mux.GetDatabase().PingAsync();
+
     builder.Services.AddSingleton<IConnectionMultiplexer>(mux);
     builder.Services.AddStackExchangeRedisCache(o =>
     {
-        o.Configuration = $"{cfg.Host}:{cfg.Port},user={cfg.User},password={cfg.Password}";
-        o.InstanceName  = "portalacademico:";
+        o.ConfigurationOptions = options;
+        o.InstanceName = "portalacademico:";
     });
 
-    Console.WriteLine($"✅ Redis configurado (PING {ping.TotalMilliseconds:n0} ms).");
+    Console.WriteLine($"✅ Redis OK (PING {ping.TotalMilliseconds:n0} ms).");
 }
 catch (Exception ex)
 {
-    // Fallback: cache distribuida en memoria (no se registran servicios de Redis)
+    // Fallback real: memoria
     builder.Services.AddDistributedMemoryCache();
     Console.WriteLine($"⚠️ Redis no disponible, usando memoria: {ex.Message}");
 }
 
-// Session (tomará IDistributedCache: Redis si está registrado; memoria si no)
+// ==============================================
+// Session (toma Redis si está, memoria si no)
+// ==============================================
 builder.Services.AddSession(o =>
 {
     o.Cookie.Name = ".PortalAcademico.Session";
@@ -81,20 +125,18 @@ builder.Services.AddSession(o =>
     o.Cookie.IsEssential = true;
 });
 
-// Acceso a HttpContext en vistas/layout
+// Utilidades / DI de servicios
 builder.Services.AddHttpContextAccessor();
-
-// Servicio de Cursos (cache + invalidación)
 builder.Services.AddScoped<ICursoService, CursoService>();
 
-// -------------------------------------
+// ==============================================
 // Build
-// -------------------------------------
+// ==============================================
 var app = builder.Build();
 
-// -------------------------------------
-// Middleware pipeline
-// -------------------------------------
+// ==============================================
+// Pipeline
+// ==============================================
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -111,9 +153,24 @@ app.UseAuthorization();
 
 app.UseSession();
 
-// -------------------------------------
-// Seeder con protección (para que no tumbe el arranque)
-// -------------------------------------
+// ==============================================
+// (Opcional) Migraciones al arrancar (Postgres/SQLite)
+// ==============================================
+try
+{
+    using var migrateScope = app.Services.CreateScope();
+    var db = migrateScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+    Console.WriteLine("✅ Migrations applied.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"⚠️ Migrations fallaron: {ex.GetBaseException().Message}");
+}
+
+// ==============================================
+// Seeder con protección
+// ==============================================
 try
 {
     using var scope = app.Services.CreateScope();
@@ -123,12 +180,12 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"❌ Seeder FALLÓ: {ex.GetType().Name} - {ex.Message}");
-    // En dev no tumbamos la app.
+    // No tumbamos la app por seed.
 }
 
-// -------------------------------------
+// ==============================================
 // Endpoints
-// -------------------------------------
+// ==============================================
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

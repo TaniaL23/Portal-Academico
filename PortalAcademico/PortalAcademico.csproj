@@ -7,6 +7,7 @@
     <UserSecretsId>aspnet-PortalAcademico-62df2d1c-4502-4e07-bd23-701f708c06a1</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Solo si realmente usas SQLite local con archivo -->
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
   </ItemGroup>
@@ -24,16 +25,15 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
 
-    <!-- (Opcional) EF Core para Postgres en prod (Render) -->
+    <!-- Postgres en prod (Render) -->
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
 
-    <!-- Cache Redis + cliente -->
-    <!-- Puedes dejar el 9.x si ya te compila; si prefieres alinear, usa 8.x -->
+    <!-- Cache Redis + cliente (alineado a .NET 8) -->
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.9.25" />
 
-    <!-- Scaffolding -->
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+    <!-- Scaffolding para .NET 8 -->
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
   </ItemGroup>
 
 </Project>
