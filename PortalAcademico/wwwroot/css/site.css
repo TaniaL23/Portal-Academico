@@ -4,7 +4,7 @@
   --radius-md: .7rem;
   --shadow-sm: 0 6px 18px rgba(0,0,0,.08);
   --shadow-md: 0 10px 28px rgba(0,0,0,.12);
-  --brand: #1a73e8;           /* azul principal */
+  --brand: #1a73e8;
   --brand-600:#1765cc;
   --brand-700:#1252a6;
   --bg-soft: rgba(26,115,232,.06);
@@ -38,7 +38,7 @@ body { margin-bottom: 60px; -webkit-font-smoothing: antialiased; }
 .custom-navbar .nav-link:hover,
 .custom-navbar a:hover{ color:#ffffff !important; }
 .custom-navbar .nav-link.active{ color:#fff !important; font-weight:600; }
-/* botones/enlaces del _LoginPartial */
+/* _LoginPartial (Register/Login) */
 .custom-navbar .btn-link{ color:#f0f0f0 !important; text-decoration:none; }
 .custom-navbar .btn-link:hover{ color:#fff !important; text-decoration:underline; }
 
@@ -103,3 +103,81 @@ body { margin-bottom: 60px; -webkit-font-smoothing: antialiased; }
   .auth-card .form-control{ background:#0b1119; border-color:#1f2a37; color:#e5e7eb; }
   .auth-card .text-danger{ color:#fda4af !important; }
 }
+
+/* ====== Detalle de curso ====== */
+.detail-wrapper{
+  min-height: 60vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+.detail-card{
+  width: 100%;
+  max-width: 820px;
+  border-radius: var(--radius-lg, 1rem);
+  background: #0f1620;
+  color: #e5e7eb;
+  box-shadow: 0 10px 28px rgba(0,0,0,.25);
+  margin: 1rem auto 2rem;
+}
+.detail-badge{
+  background: #6c757d;
+  color:#fff;
+  font-weight: 700;
+  font-size: .95rem;
+  padding: .35rem .6rem;
+  border-radius: .6rem;
+}
+.detail-dl dt{
+  font-weight:700;
+  color:#d1d5db;
+  margin-bottom:.35rem;
+}
+.detail-dl dd{ margin-bottom:.35rem; }
+
+/* 🔹 Botones parejos en detalle (outline que combina con primario) */
+.detail-card .btn{ border-radius:.6rem; font-weight:500; }
+.detail-card .btn-outline-light{
+  color:#e5e7eb;
+  border-color: rgba(255,255,255,.45);
+}
+.detail-card .btn-outline-light:hover{
+  background: var(--brand);
+  border-color: var(--brand);
+  color:#fff;
+}
+
+/* ====== Catálogo: filtros y botones ====== */
+/* Altura y look iguales para Filtrar/Limpiar */
+.btn-filter{
+  height: calc(2.5rem + 2px);
+  padding-inline: 1.1rem;
+  border-radius: .6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Si por error de vista dejas "Limpiar" como outline, lo pintamos como primario igualmente */
+.btn-filter.btn-outline-secondary{
+  background: var(--brand) !important;
+  border-color: var(--brand) !important;
+  color:#fff !important;
+}
+.btn-filter.btn-outline-secondary:hover{
+  background: var(--brand-600) !important;
+  border-color: var(--brand-600) !important;
+}
+
+/* Inputs time: tamaño, centrado y click seguro */
+.time-input{
+  text-align:center;
+  height: calc(2.5rem + 2px);
+}
+/* 👇 Quitamos filtro del icono que en algunos navegadores tapa el click */
+/* .time-input::-webkit-calendar-picker-indicator{ filter: invert(1) opacity(.85); } */
+
+/* Botón "Ver detalle" con ancho parejo */
+.btn-equal{ min-width:120px; }

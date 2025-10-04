@@ -1,0 +1,46 @@
+@model PortalAcademico.Models.Curso
+@{
+    ViewData["Title"] = "Detalle de curso";
+    string hIni = Model.HorarioInicio.ToString("HH\\:mm");
+    string hFin = Model.HorarioFin.ToString("HH\\:mm");
+}
+
+<div class="detail-wrapper d-flex justify-content-center align-items-center">
+  <div class="card detail-card border-0 shadow-lg text-center">
+    <div class="card-body p-4 p-md-5">
+
+      <!-- Título + Código -->
+      <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-3 mb-4">
+        <h2 class="mb-0 fw-bold text-light">@Model.Nombre</h2>
+        <span class="badge bg-secondary px-3 py-2">@Model.Codigo</span>
+      </div>
+
+      <!-- Datos -->
+      <dl class="row justify-content-center text-light detail-dl">
+        <dt class="col-5 col-md-3 fw-semibold">Créditos</dt>
+        <dd class="col-7 col-md-3">@Model.Creditos</dd>
+
+        <dt class="col-5 col-md-3 fw-semibold">Cupo Máximo</dt>
+        <dd class="col-7 col-md-3">@Model.CupoMaximo</dd>
+
+        <dt class="col-5 col-md-3 fw-semibold">Horario</dt>
+        <dd class="col-7 col-md-3">@hIni – @hFin</dd>
+
+        <dt class="col-5 col-md-3 fw-semibold">Activo</dt>
+        <dd class="col-7 col-md-3">@(Model.Activo ? "Sí" : "No")</dd>
+      </dl>
+
+      <!-- Botones -->
+      <div class="d-flex flex-wrap gap-3 mt-4 justify-content-center">
+        <a class="btn btn-primary px-4"
+           asp-controller="Matriculas" asp-action="Crear" asp-route-cursoId="@Model.Id">
+          Inscribirse
+        </a>
+        <a asp-action="Index" class="btn btn-primary px-4">
+          Volver al catálogo
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
