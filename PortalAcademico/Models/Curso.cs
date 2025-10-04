@@ -15,13 +15,15 @@ namespace PortalAcademico.Models
         [Range(1, 30, ErrorMessage = "Créditos debe ser > 0")]
         public int Creditos { get; set; }
 
-        [Range(1, 1000)]
+        [Range(1, 1000, ErrorMessage = "CupoMaximo debe ser entre 1 y 1000")]
         public int CupoMaximo { get; set; }
 
-        [Required]
+        [Required, DataType(DataType.Time)]
+        [DisplayFormat(DataFormatString = "{0:HH\\:mm}", ApplyFormatInEditMode = true)]
         public TimeOnly HorarioInicio { get; set; }
 
-        [Required]
+        [Required, DataType(DataType.Time)]
+        [DisplayFormat(DataFormatString = "{0:HH\\:mm}", ApplyFormatInEditMode = true)]
         public TimeOnly HorarioFin { get; set; }
 
         public bool Activo { get; set; } = true;
@@ -29,7 +31,7 @@ namespace PortalAcademico.Models
         public ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
 
         // Regla: HorarioInicio < HorarioFin
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        public IEnumerable<ValidationResult> Validate(ValidationContext _)
         {
             if (HorarioInicio >= HorarioFin)
             {

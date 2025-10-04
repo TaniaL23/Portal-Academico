@@ -7,86 +7,123 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@(string.IsNullOrWhiteSpace(Convert.ToString(ViewData["Title"])) 
-          ? "Portal Académico" 
-          : ViewData["Title"] + " · Portal Académico")</title>
+  <meta name="theme-color" content="#0b1424" />
+  <meta name="color-scheme" content="dark light" />
+  <title>
+    @(string.IsNullOrWhiteSpace(Convert.ToString(ViewData["Title"]))
+        ? "Portal Académico"
+        : ViewData["Title"] + " · Portal Académico")
+  </title>
 
-  <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+  <!-- Tipografía + Iconos -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+        crossorigin="anonymous">
+
+  <!-- Estilos del sitio -->
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/PortalAcademico.styles.css" asp-append-version="true" />
   @RenderSection("Styles", required: false)
 </head>
 <body>
 <header>
-  <!-- 🔹 Navbar con gradiente -->
-  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm custom-navbar">
-    <div class="container">
-      <!-- Nombre del sistema -->
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark shadow-sm custom-navbar" role="navigation" aria-label="Barra principal">
+    <div class="container-xl">
       <a class="navbar-brand fw-semibold" asp-area="" asp-controller="Home" asp-action="Index">
         Portal Académico
       </a>
 
-      <!-- Botón hamburguesa en móvil -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
               aria-controls="mainNavbar" aria-expanded="false" aria-label="Alternar navegación">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Links -->
       <div class="collapse navbar-collapse" id="mainNavbar">
+        @{
+            var curController = Convert.ToString(ViewContext.RouteData.Values["controller"]);
+            var curAction     = Convert.ToString(ViewContext.RouteData.Values["action"]);
+        }
+
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" 
-                                 && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-               asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
+            <a class="nav-link @(curController=="Home" && curAction=="Index" ? "active" : "")"
+               asp-area="" asp-controller="Home" asp-action="Index"
+               aria-current="@(curController=="Home" && curAction=="Index" ? "page" : null)">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link @(curController=="Catalogo" ? "active" : "")"
+               asp-controller="Catalogo" asp-action="Index"
+               aria-current="@(curController=="Catalogo" ? "page" : null)">Catálogo</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link @(curController=="Home" && curAction=="Privacy" ? "active" : "")"
+               asp-area="" asp-controller="Home" asp-action="Privacy"
+               aria-current="@(curController=="Home" && curAction=="Privacy" ? "page" : null)">Privacidad</a>
           </li>
 
-          <!-- 🔹 NUEVO: Catálogo -->
-          <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Catalogo" ? "active" : "")"
-               asp-controller="Catalogo" asp-action="Index">Catálogo</a>
-          </li>
+          @* --- Enlaces solo para Coordinador --- *@
+          @if (User.IsInRole("Coordinador"))
+          {
+              <li class="nav-item">
+                <a class="nav-link @(curController=="Coordinador" ? "active" : "")"
+                   asp-controller="Coordinador" asp-action="Index"
+                   aria-current="@(curController=="Coordinador" ? "page" : null)">
+                   Panel Coordinador
+                </a>
+              </li>
 
-          <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" 
-                                 && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
-               asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
-          </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle @(curController is "CursosAdmin" or "MatriculasAdmin" ? "active" : "")"
+                   href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                   Administración
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="adminDropdown">
+                  <li>
+                    <a class="dropdown-item" asp-controller="CursosAdmin" asp-action="Index">
+                      <i class="bi bi-journal-text me-2"></i>Cursos (CRUD)
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" asp-controller="MatriculasAdmin" asp-action="PorCurso">
+                      <i class="bi bi-people-fill me-2"></i>Matrículas por curso
+                    </a>
+                  </li>
+                </ul>
+              </li>
+          }
+          @* --- /Coordinador --- *@
         </ul>
 
-        <!-- 🔹 Último curso visitado -->
+        @* Botón "volver al último curso" (si aplica) *@
         @{
             var lastId   = Http.HttpContext?.Session.GetInt32("LastCourseId");
             var lastName = Http.HttpContext?.Session.GetString("LastCourseName");
 
-            var curController = Convert.ToString(ViewContext.RouteData.Values["controller"]);
-            var curAction     = Convert.ToString(ViewContext.RouteData.Values["action"]);
-
-            int? curId = null;
-            if (int.TryParse(Convert.ToString(ViewContext.RouteData.Values["id"]), out var parsed))
-            {
-                curId = parsed;
-            }
+            int? routeId = null;
+            if (int.TryParse(Convert.ToString(ViewContext.RouteData.Values["id"]), out var parsed)) routeId = parsed;
 
             bool isSameCoursePage =
                 curController == "Catalogo" &&
                 curAction == "Detalle" &&
-                lastId.HasValue &&
-                curId.HasValue &&
-                curId.Value == lastId.Value;
+                lastId.HasValue && routeId.HasValue &&
+                routeId.Value == lastId.Value;
         }
 
         @if (lastId.HasValue && !string.IsNullOrWhiteSpace(lastName) && !isSameCoursePage)
         {
             <a class="btn btn-sm btn-outline-light me-3"
-               asp-controller="Catalogo"
-               asp-action="Detalle"
-               asp-route-id="@lastId.Value">
-                Volver al curso @lastName
+               asp-controller="Catalogo" asp-action="Detalle" asp-route-id="@lastId.Value"
+               title="Volver al último curso visitado">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Volver a @lastName
             </a>
         }
 
-        <!-- 🔹 Register / Login -->
         <div class="d-flex align-items-center">
           <partial name="_LoginPartial" />
         </div>
@@ -95,23 +132,22 @@
   </nav>
 </header>
 
-<!-- Contenido principal -->
-<div class="container my-4">
+<div class="container-xl my-4">
   <main role="main">
     @RenderBody()
   </main>
 </div>
 
-<!-- Footer -->
 <footer class="border-top py-3 mt-5 text-muted">
-  <div class="container d-flex flex-wrap gap-2 justify-content-between align-items-center">
+  <div class="container-xl d-flex flex-wrap gap-2 justify-content-between align-items-center">
     <span>&copy; @DateTime.Now.Year — Portal Académico</span>
     <a class="text-decoration-none" asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
   </div>
 </footer>
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @RenderSection("Scripts", required: false)
 </body>

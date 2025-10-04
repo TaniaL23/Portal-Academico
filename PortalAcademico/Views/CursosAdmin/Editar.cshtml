@@ -1,0 +1,21 @@
+@model PortalAcademico.Models.Curso
+@{
+    ViewData["Title"] = "Editar curso";
+}
+<h2 class="mb-3 h-title">@ViewData["Title"]</h2>
+
+<form asp-action="Editar" method="post">
+  @Html.AntiForgeryToken()
+  <input type="hidden" asp-for="Id" />
+
+  <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+  @await Html.PartialAsync("_CursoForm", Model)
+
+  <div class="mt-3">
+    <button type="submit" class="btn btn-soft-primary">Guardar cambios</button>
+    <a asp-action="Index" class="btn btn-ghost ms-2">Cancelar</a>
+  </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
