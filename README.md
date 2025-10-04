@@ -18,10 +18,18 @@ dotnet restore
 dotnet ef database update
 dotnet run
 
-   Catálogo de cursos — Pregunta 2
+* Catálogo de cursos — Pregunta 2
 
 Rama: `feature/catalogo-cursos`
 
 - Listado de cursos activos con filtros (nombre, créditos, horario).  
 - Vista detalle con botón **Inscribirse**.  
-- Validaciones: créditos ≥ 0, rango de créditos válido y horario fin ≥ inicio.  
+- Validaciones: créditos ≥ 0, rango de créditos válido y horario fin ≥ inicio.
+
+*Pregunta 3 – Inscripción
+
+Rama: feature/matriculas
+
+-Formulario para inscribirse en un curso (estado inicial: Pendiente).
+-Validaciones: usuario autenticado, no exceder CupoMáximo, sin duplicados ni choques de horario.
+-Mensajes claros de éxito/error en la vista.
