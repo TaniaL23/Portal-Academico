@@ -1,0 +1,98 @@
+@model PortalAcademico.ViewModels.CatalogoIndexVM
+@{
+    ViewData["Title"] = "Catálogo de cursos";
+}
+
+<h2 class="mb-3">Catálogo de cursos</h2>
+
+<form method="get" class="row g-3 mb-4">
+  <div class="col-12 col-md-4">
+    <label asp-for="Filtros.Nombre" class="form-label">Nombre contiene</label>
+    <input asp-for="Filtros.Nombre" class="form-control" />
+    <span asp-validation-for="Filtros.Nombre" class="text-danger small"></span>
+  </div>
+
+  <div class="col-6 col-md-2">
+    <label asp-for="Filtros.CreditosMin" class="form-label">Créditos mín.</label>
+    <input asp-for="Filtros.CreditosMin" type="number" min="0" class="form-control" />
+    <span asp-validation-for="Filtros.CreditosMin" class="text-danger small"></span>
+  </div>
+
+  <div class="col-6 col-md-2">
+    <label asp-for="Filtros.CreditosMax" class="form-label">Créditos máx.</label>
+    <input asp-for="Filtros.CreditosMax" type="number" min="0" class="form-control" />
+    <span asp-validation-for="Filtros.CreditosMax" class="text-danger small"></span>
+  </div>
+
+  <div class="col-6 col-md-2">
+    <label asp-for="Filtros.HoraInicioDesde" class="form-label">Horario desde</label>
+    <input asp-for="Filtros.HoraInicioDesde"
+           type="time"
+           asp-format="{0:HH\\:mm}"
+           step="60"
+           class="form-control time-input" />
+    <span asp-validation-for="Filtros.HoraInicioDesde" class="text-danger small"></span>
+  </div>
+
+  <div class="col-6 col-md-2">
+    <label asp-for="Filtros.HoraFinHasta" class="form-label">Horario hasta</label>
+    <input asp-for="Filtros.HoraFinHasta"
+           type="time"
+           asp-format="{0:HH\\:mm}"
+           step="60"
+           class="form-control time-input" />
+    <span asp-validation-for="Filtros.HoraFinHasta" class="text-danger small"></span>
+  </div>
+
+  <!-- Summary SOLO de errores de modelo para evitar duplicados -->
+  <div class="col-12 d-flex gap-2 align-items-stretch">
+    <div asp-validation-summary="ModelOnly" class="text-danger small me-auto"></div>
+
+    <button type="submit" class="btn btn-primary btn-filter">Filtrar</button>
+    <a asp-action="Index" class="btn btn-primary btn-filter">Limpiar</a>
+  </div>
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <!-- Hay errores; ya se muestran en el summary (model) y/o spans por campo -->
+}
+else if (!Model.Cursos.Any())
+{
+  <div class="alert alert-info">No hay cursos que coincidan con los filtros.</div>
+}
+else
+{
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th style="width:120px">Código</th>
+          <th>Nombre</th>
+          <th class="text-center" style="width:120px">Créditos</th>
+          <th style="width:180px">Horario</th>
+          <th class="text-end" style="width:140px">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+      @foreach (var c in Model.Cursos)
+      {
+        <tr>
+          <td>@c.Codigo</td>
+          <td>@c.Nombre</td>
+          <td class="text-center">@c.Creditos</td>
+          <td>@c.HorarioInicio.ToString("HH\\:mm") - @c.HorarioFin.ToString("HH\\:mm")</td>
+          <td class="text-end">
+            <a asp-action="Detalle" asp-route-id="@c.Id"
+               class="btn btn-sm btn-outline-light btn-equal">Ver detalle</a>
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
+  </div>
+}
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+}

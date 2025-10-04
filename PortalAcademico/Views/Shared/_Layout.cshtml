@@ -33,11 +33,20 @@
       <div class="collapse navbar-collapse" id="mainNavbar">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" 
+                                 && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
                asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
           </li>
+
+          <!-- 🔹 NUEVO: Catálogo -->
           <li class="nav-item">
-            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" ? "active" : "")"
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Catalogo" ? "active" : "")"
+               asp-controller="Catalogo" asp-action="Index">Catálogo</a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Privacy" 
+                                 && ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")"
                asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
           </li>
         </ul>
