@@ -25,3 +25,11 @@ Rama: `feature/catalogo-cursos`
 - Listado de cursos activos con filtros (nombre, créditos, horario).  
 - Vista detalle con botón **Inscribirse**.  
 - Validaciones: créditos ≥ 0, rango de créditos válido y horario fin ≥ inicio.  
+  Redis — Pregunta 4
+
+Rama: feature/sesion-redis
+
+- Se guarda en sesión el **último curso visitado** y aparece un botón “Volver al curso {Nombre}” en el layout.  
+- Los cursos **activos** se cachean en Redis por **60 segundos**.  
+- El cache se **invalida** automáticamente al crear o editar un curso.
+-.\redis-server.exe --port 6379
