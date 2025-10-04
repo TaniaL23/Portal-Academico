@@ -20,7 +20,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     if (!string.IsNullOrWhiteSpace(cs) &&
         cs.Contains("Host=", StringComparison.OrdinalIgnoreCase))
     {
-        // Requiere paquete Npgsql.EntityFrameworkCore.PostgreSQL (8.x)
+        // Requiere Npgsql.EntityFrameworkCore.PostgreSQL 8.x
         options.UseNpgsql(cs);
         Console.WriteLine("💽 DB: PostgreSQL (por cadena con Host=).");
     }
@@ -56,7 +56,7 @@ builder.Services.AddRazorPages(); // UI de Identity
 // ==============================================
 try
 {
-    // 1) Rúbrica: una sola cadena (funciona p.ej. con Upstash)
+    // 1) Rúbrica: una sola cadena (Upstash, etc.)
     var redisConnStr = builder.Configuration["Redis:ConnectionString"]
                        ?? builder.Configuration["Redis__ConnectionString"];
 
@@ -73,28 +73,27 @@ try
     }
     else
     {
-        // 2) Estilo profe: Host/Port/User/Password (soporta Redis: y Redis__)
+        // 2) Estilo por partes (Redis:Host/Port/User/Password)
         var host = builder.Configuration["Redis:Host"] ?? builder.Configuration["Redis__Host"] ?? "127.0.0.1";
-        var port = builder.Configuration.GetValue<int?>("Redis:Port")
-                   ?? builder.Configuration.GetValue<int?>("Redis__Port")
-                   ?? 6379;
+        int port = builder.Configuration.GetValue<int?>("Redis:Port")
+                  ?? builder.Configuration.GetValue<int?>("Redis__Port")
+                  ?? 6379; // ✅ int, sin .Value
         var user = builder.Configuration["Redis:User"] ?? builder.Configuration["Redis__User"];
         var pass = builder.Configuration["Redis:Password"] ?? builder.Configuration["Redis__Password"];
 
         options = new ConfigurationOptions
         {
-            AbortOnConnectFail = false,     // en cloud conviene no abortar
+            AbortOnConnectFail = false, // en cloud no abortar para reconectar
             ConnectTimeout = 5000,
             SyncTimeout = 5000
         };
-        options.EndPoints.Add(host, port.Value);
+        options.EndPoints.Add(host, port); // ✅ sin .Value
         if (!string.IsNullOrWhiteSpace(user)) options.User = user;
         if (!string.IsNullOrWhiteSpace(pass)) options.Password = pass;
 
         Console.WriteLine($"🔗 Redis: {host}:{port}");
     }
 
-    // Conexión + ping
     var mux  = await ConnectionMultiplexer.ConnectAsync(options);
     var ping = await mux.GetDatabase().PingAsync();
 
