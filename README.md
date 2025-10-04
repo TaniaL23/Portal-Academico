@@ -24,7 +24,8 @@ Rama: `feature/catalogo-cursos`
 
 - Listado de cursos activos con filtros (nombre, créditos, horario).  
 - Vista detalle con botón **Inscribirse**.  
-- Validaciones: créditos ≥ 0, rango de créditos válido y horario fin ≥ inicio.  
+- Validaciones: créditos ≥ 0, rango de créditos válido y horario fin ≥ inicio.
+
   Redis — Pregunta 4
 
 Rama: feature/sesion-redis
@@ -33,3 +34,12 @@ Rama: feature/sesion-redis
 - Los cursos **activos** se cachean en Redis por **60 segundos**.  
 - El cache se **invalida** automáticamente al crear o editar un curso.
 -.\redis-server.exe --port 6379
+    Pregunta 5 — Panel de Coordinador
+
+Rama: feature/panel-coordinador  
+
+- Rol Coordinador con autorización.  
+- Panel `/Coordinador` protegido.  
+- CRUD de cursos.  
+- Lista de matrículas con Confirmar/Cancelar.  
+- Acceso restringido a otros roles.  
