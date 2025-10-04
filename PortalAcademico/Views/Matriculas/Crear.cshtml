@@ -1,0 +1,60 @@
+@model PortalAcademico.Models.Matricula
+@{
+    ViewData["Title"] = "Inscripción";
+    var curso = ViewBag.Curso as PortalAcademico.Models.Curso;
+}
+
+<div class="enroll-wrapper">
+  <div class="card enroll-card border-0 shadow-lg">
+    <div class="card-body p-4 p-md-5">
+
+      <!-- Encabezado -->
+      <div class="text-center mb-4">
+        <div class="enroll-icon mb-2">🎓</div>
+        <h3 class="fw-semibold mb-1">Inscripción en curso</h3>
+        <div class="text-muted">Confirma tu matrícula</div>
+      </div>
+
+      <!-- Curso -->
+      <div class="d-flex flex-column flex-md-row align-items-center justify-content-center gap-2 mb-3">
+        <h4 class="mb-0 fw-bold">@curso?.Nombre</h4>
+        <span class="badge badge-course">@curso?.Codigo</span>
+      </div>
+
+      <dl class="row enroll-dl mb-3">
+        <dt class="col-5 col-md-3">Créditos</dt>
+        <dd class="col-7 col-md-9">@curso?.Creditos</dd>
+
+        <dt class="col-5 col-md-3">Horario</dt>
+        <dd class="col-7 col-md-9">
+          @curso?.HorarioInicio.ToString("HH\\:mm") – @curso?.HorarioFin.ToString("HH\\:mm")
+        </dd>
+      </dl>
+
+      <!-- Mensajes -->
+      @if (TempData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
+      {
+        <div class="alert alert-danger mb-3 py-2">@err</div>
+      }
+
+      <form asp-action="Crear" method="post" class="mt-2">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="CursoId" />
+
+        <div asp-validation-summary="All" class="alert alert-danger py-2 mb-3" role="alert"></div>
+
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+          <button type="submit" class="btn btn-primary px-4">Confirmar inscripción</button>
+
+          <a asp-controller="Catalogo" asp-action="Detalle" asp-route-id="@curso?.Id"
+             class="btn btn-outline-light px-4">Cancelar</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+}
