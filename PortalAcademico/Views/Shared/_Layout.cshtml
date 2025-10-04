@@ -1,4 +1,7 @@
 ﻿@* Views/Shared/_Layout.cshtml *@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor Http
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -50,6 +53,38 @@
                asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
           </li>
         </ul>
+
+        <!-- 🔹 Último curso visitado -->
+        @{
+            var lastId   = Http.HttpContext?.Session.GetInt32("LastCourseId");
+            var lastName = Http.HttpContext?.Session.GetString("LastCourseName");
+
+            var curController = Convert.ToString(ViewContext.RouteData.Values["controller"]);
+            var curAction     = Convert.ToString(ViewContext.RouteData.Values["action"]);
+
+            int? curId = null;
+            if (int.TryParse(Convert.ToString(ViewContext.RouteData.Values["id"]), out var parsed))
+            {
+                curId = parsed;
+            }
+
+            bool isSameCoursePage =
+                curController == "Catalogo" &&
+                curAction == "Detalle" &&
+                lastId.HasValue &&
+                curId.HasValue &&
+                curId.Value == lastId.Value;
+        }
+
+        @if (lastId.HasValue && !string.IsNullOrWhiteSpace(lastName) && !isSameCoursePage)
+        {
+            <a class="btn btn-sm btn-outline-light me-3"
+               asp-controller="Catalogo"
+               asp-action="Detalle"
+               asp-route-id="@lastId.Value">
+                Volver al curso @lastName
+            </a>
+        }
 
         <!-- 🔹 Register / Login -->
         <div class="d-flex align-items-center">

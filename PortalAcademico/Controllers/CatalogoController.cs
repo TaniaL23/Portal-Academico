@@ -1,36 +1,42 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PortalAcademico.Data;
+using Microsoft.AspNetCore.Http;
+using PortalAcademico.Services;          // ICursoService
 using PortalAcademico.ViewModels;
+using PortalAcademico.Models;            // Curso
+using System.Globalization;
 
 public class CatalogoController : Controller
 {
-    private readonly ApplicationDbContext _ctx;
-    public CatalogoController(ApplicationDbContext ctx) => _ctx = ctx;
+    private readonly ICursoService _cursos;
+
+    public CatalogoController(ICursoService cursos)
+        => _cursos = cursos;
 
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] CatalogoFiltrosVM filtros)
     {
-        // Base: SOLO cursos activos
-        var query = _ctx.Cursos.AsNoTracking().Where(c => c.Activo);
+        // 1) Trae TODOS los cursos ACTIVO desde cache (Redis 60s)
+        var activos = await _cursos.GetActivosAsync(); // List<Curso>
 
-        // Valida DataAnnotations + IValidatableObject
+        // 2) Validación de filtros
         if (!ModelState.IsValid)
         {
             return View(new CatalogoIndexVM
             {
                 Filtros = filtros,
-                Cursos  = Array.Empty<PortalAcademico.Models.Curso>()
+                Cursos  = Array.Empty<Curso>()
             });
         }
 
-        // Aplica filtros SOLO si el modelo es válido
+        // 3) Aplica filtros EN MEMORIA (IEnumerable) porque ya no es EF IQueryable
+        IEnumerable<Curso> query = activos;
+
         if (!string.IsNullOrWhiteSpace(filtros.Nombre))
         {
-            var patron = $"%{filtros.Nombre.Trim()}%";
+            var patron = filtros.Nombre.Trim();
             query = query.Where(c =>
-                EF.Functions.Like(c.Nombre, patron) ||
-                EF.Functions.Like(c.Codigo, patron));
+                (!string.IsNullOrEmpty(c.Nombre) && c.Nombre.Contains(patron, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(c.Codigo) && c.Codigo.Contains(patron, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (filtros.CreditosMin.HasValue)
@@ -45,21 +51,26 @@ public class CatalogoController : Controller
         if (filtros.HoraFinHasta.HasValue)
             query = query.Where(c => c.HorarioFin <= filtros.HoraFinHasta.Value);
 
-        var cursos = await query
+        var cursosFiltrados = query
             .OrderBy(c => c.Nombre)
-            .ToListAsync();
+            .ToList();
 
-        return View(new CatalogoIndexVM { Filtros = filtros, Cursos = cursos });
+        return View(new CatalogoIndexVM { Filtros = filtros, Cursos = cursosFiltrados });
     }
 
     [HttpGet]
     public async Task<IActionResult> Detalle(int id)
     {
-        var curso = await _ctx.Cursos
-            .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.Activo);
+        var curso = await _cursos.GetByIdAsync(id);
+        if (curso == null || !curso.Activo) return NotFound();
 
-        if (curso == null) return NotFound();
+        // 🧠 Sesión (Redis-backed): último curso visitado
+        HttpContext.Session.SetInt32("LastCourseId", curso.Id);
+        HttpContext.Session.SetString("LastCourseName", curso.Nombre ?? $"#{curso.Id}");
+
         return View(curso);
     }
+
+    // Si más adelante agregas Crear/Editar, recuerda invalidar:
+    // await _cursos.InvalidateActivosCacheAsync();
 }
