@@ -67,3 +67,8 @@ project.lock.json
 
 ## Otros
 *.vscode/
+
+
+*.db
+*.db-shm
+*.db-wal
