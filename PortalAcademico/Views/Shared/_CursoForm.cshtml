@@ -1,0 +1,67 @@
+@model PortalAcademico.Models.Curso
+
+<div class="mb-3">
+  <label asp-for="Codigo" class="form-label"></label>
+  <input asp-for="Codigo"
+         class="form-control"
+         autocomplete="off" />
+  <span class="form-text text-secondary">Ej.: PR301, IS101 (máx. 10 caracteres)</span>
+  <span asp-validation-for="Codigo" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+  <label asp-for="Nombre" class="form-label"></label>
+  <input asp-for="Nombre"
+         class="form-control"
+         autocomplete="off" />
+  <span class="form-text text-secondary">Nombre visible en el catálogo (máx. 100 caracteres)</span>
+  <span asp-validation-for="Nombre" class="text-danger"></span>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-3">
+    <label asp-for="Creditos" class="form-label"></label>
+    <input asp-for="Creditos"
+           type="number"
+           class="form-control"
+           inputmode="numeric"
+           min="1" max="30" />
+    <span asp-validation-for="Creditos" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="CupoMaximo" class="form-label"></label>
+    <input asp-for="CupoMaximo"
+           type="number"
+           class="form-control"
+           inputmode="numeric"
+           min="1" max="1000" />
+    <span class="form-text text-secondary">Capacidad total del curso (1–1000)</span>
+    <span asp-validation-for="CupoMaximo" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="HorarioInicio" class="form-label"></label>
+    <input asp-for="HorarioInicio"
+           type="time"
+           class="form-control"
+           step="60" />
+    <span asp-validation-for="HorarioInicio" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="HorarioFin" class="form-label"></label>
+    <input asp-for="HorarioFin"
+           type="time"
+           class="form-control"
+           step="60" />
+    <span class="form-text text-secondary">Debe ser mayor que la hora de inicio</span>
+    <span asp-validation-for="HorarioFin" class="text-danger"></span>
+  </div>
+</div>
+
+<div class="form-check form-switch my-3">
+  <input class="form-check-input" asp-for="Activo" />
+  <label class="form-check-label" asp-for="Activo"></label>
+  <span asp-validation-for="Activo" class="text-danger"></span>
+</div>

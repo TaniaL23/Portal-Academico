@@ -1,0 +1,61 @@
+@model PortalAcademico.Models.Curso
+@{
+    ViewData["Title"] = "Crear curso";
+}
+<h2 class="mb-3 h-title">@ViewData["Title"]</h2>
+
+<form asp-action="Crear" method="post" class="row g-3">
+  @Html.AntiForgeryToken()
+
+  <div asp-validation-summary="All" class="alert alert-danger"></div>
+
+  <div class="col-md-6">
+    <label asp-for="Nombre" class="form-label"></label>
+    <input asp-for="Nombre" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Nombre" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="Codigo" class="form-label"></label>
+    <input asp-for="Codigo" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Codigo" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="Creditos" class="form-label"></label>
+    <input asp-for="Creditos" type="number" class="form-control" inputmode="numeric" min="1" max="30" />
+    <span asp-validation-for="Creditos" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="HorarioInicio" class="form-label"></label>
+    <input asp-for="HorarioInicio" type="time" class="form-control" step="60" />
+    <span asp-validation-for="HorarioInicio" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="HorarioFin" class="form-label"></label>
+    <input asp-for="HorarioFin" type="time" class="form-control" step="60" />
+    <span asp-validation-for="HorarioFin" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3">
+    <label asp-for="CupoMaximo" class="form-label"></label>
+    <input asp-for="CupoMaximo" type="number" class="form-control" inputmode="numeric" min="1" max="1000" />
+    <span asp-validation-for="CupoMaximo" class="text-danger"></span>
+  </div>
+
+  <div class="col-md-3 d-flex align-items-end">
+    <div class="form-check form-switch">
+      <input asp-for="Activo" class="form-check-input" />
+      <label asp-for="Activo" class="form-check-label"></label>
+    </div>
+  </div>
+
+  <div class="col-12 mt-2">
+    <button type="submit" class="btn btn-soft-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-ghost ms-2">Volver</a>
+  </div>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

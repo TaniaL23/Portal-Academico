@@ -1,0 +1,76 @@
+@model List<PortalAcademico.Models.Matricula>
+@{
+    ViewData["Title"] = "Matrículas por curso";
+    var cursos = ViewBag.Cursos as List<PortalAcademico.Models.Curso> ?? new();
+    int? cursoId = ViewBag.CursoId as int?;
+}
+
+<h2 class="mb-3">@ViewData["Title"]</h2>
+
+<form method="get" asp-action="PorCurso" class="mb-3 d-flex gap-2">
+    <select name="cursoId" class="form-select" style="max-width:420px"
+            onchange="this.form.submit()">
+        @foreach (var c in cursos)
+        {
+            <option value="@c.Id" selected="@(cursoId == c.Id)">
+                @c.Nombre (Cupo @c.CupoMaximo) @(c.Activo ? "" : " - Inactivo")
+            </option>
+        }
+    </select>
+    <noscript><button class="btn btn-primary">Filtrar</button></noscript>
+</form>
+
+@if (TempData["ok"] is string okMsg)
+{
+    <div class="alert alert-success">@okMsg</div>
+}
+@if (TempData["error"] is string errMsg)
+{
+    <div class="alert alert-danger">@errMsg</div>
+}
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th style="width:220px">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var m in Model)
+    {
+        <tr>
+            <td>@(m.Usuario?.Email ?? m.UsuarioId)</td>
+            <td>@m.FechaRegistro.ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@m.Estado</td>
+            <td>
+                @if (m.Estado == PortalAcademico.Models.EstadoMatricula.Pendiente)
+                {
+                    <form asp-action="Confirmar" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@m.Id" />
+                        <button class="btn btn-success btn-sm">Confirmar</button>
+                    </form>
+                    <form asp-action="Cancelar" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@m.Id" />
+                        <button class="btn btn-outline-danger btn-sm">Cancelar</button>
+                    </form>
+                }
+                else if (m.Estado == PortalAcademico.Models.EstadoMatricula.Confirmada)
+                {
+                    <form asp-action="Cancelar" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@m.Id" />
+                        <button class="btn btn-outline-danger btn-sm">Cancelar</button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay matrículas para este curso.</div>
+}

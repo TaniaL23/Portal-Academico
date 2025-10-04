@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Panel de Coordinador";
+}
+
+<header class="mb-4">
+    <h2 class="h-title mb-1">@ViewData["Title"]</h2>
+    <div class="text-secondary">Accesos rápidos para administrar cursos y matrículas.</div>
+</header>
+
+<div class="row g-4">
+    <!-- Card: Cursos -->
+    <div class="col-md-6">
+        <div class="card panel h-100 p-3">
+            <div class="d-flex gap-3 align-items-start">
+                <div class="fs-3 text-primary">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="mb-1 text-light">Gestión de cursos</h5>
+                    <p class="mb-3 text-secondary">
+                        Crear, editar o desactivar cursos del catálogo.
+                    </p>
+                    <a asp-controller="CursosAdmin" asp-action="Index" class="btn btn-soft-primary">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Ir a CRUD de Cursos
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card: Matrículas -->
+    <div class="col-md-6">
+        <div class="card panel h-100 p-3">
+            <div class="d-flex gap-3 align-items-start">
+                <div class="fs-3" style="color:#3dd598;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="mb-1 text-light">Matrículas</h5>
+                    <p class="mb-3 text-secondary">
+                        Revisar y <strong>confirmar/cancelar</strong> matrículas por curso respetando cupos.
+                    </p>
+                    <a asp-controller="MatriculasAdmin" asp-action="PorCurso" class="btn btn-ghost">
+                        <i class="bi bi-list-check me-1"></i> Ver Matrículas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
