@@ -1,0 +1,69 @@
+## Archivos de compilación
+bin/
+obj/
+out/
+[Bb]uild/
+[Bb]in/
+[Oo]bj/
+
+## Configuración de Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Archivos de dependencias locales
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Logs y temporales
+*.log
+*.tlog
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.DS_Store
+Thumbs.db
+
+## Archivos generados
+*.g.cs
+*.AssemblyInfo.cs
+*.AssemblyAttributes.cs
+*.cache
+*.ide
+*.generated.cs
+*.GeneratedMSBuildEditorConfig.editorconfig
+*.GlobalUsings.g.cs
+
+## Archivos de publicación
+*.publish.xml
+publish/
+_PublishTemp/
+node_modules/
+dist/
+
+## Configuración sensible (opcional, si no quieres subir)
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+## Archivos de test
+TestResult*/
+*.trx
+*.coverage
+*.coveragexml
+
+## Paquetes NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+*.nuspec
+project.lock.json
+
+## Otros
+*.vscode/
