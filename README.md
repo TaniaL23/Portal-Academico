@@ -42,4 +42,17 @@ Rama: feature/panel-coordinador
 - Panel `/Coordinador` protegido.  
 - CRUD de cursos.  
 - Lista de matrículas con Confirmar/Cancelar.  
-- Acceso restringido a otros roles.  
+- Acceso restringido a otros roles.
+
+Pregunta 6 — Despliegue en Render
+
+Rama: deploy/render
+
+Se desplegó el Portal Académico en Render como Web Service usando PostgreSQL y Redis en producción.
+Se configuraron las variables:
+ASPNETCORE_ENVIRONMENT=Production,
+ASPNETCORE_URLS=http://0.0.0.0:${PORT},
+ConnectionStrings__DefaultConnection,
+Redis__ConnectionString.
+
+Verificado online el correcto funcionamiento de login, catálogo, inscripción y panel del coordinador.
