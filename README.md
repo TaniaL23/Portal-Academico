@@ -56,3 +56,4 @@ ConnectionStrings__DefaultConnection,
 Redis__ConnectionString.
 
 Verificado online el correcto funcionamiento de login, catálogo, inscripción y panel del coordinador.
+link render ( https://portal-academico-1.onrender.com )
